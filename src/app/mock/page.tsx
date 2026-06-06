@@ -10,9 +10,14 @@ import {
  */
 export default function MockPage() {
   return (
-    <IntegratedReadingView
-      reading={sampleReading}
-      astrologyInterpretation={sampleAstrologyInterpretation}
-    />
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <IntegratedReadingView
+          reading={sampleReading}
+          astrologyInterpretation={sampleAstrologyInterpretation}
+          notice="モック表示（サンプルデータ）— 実データ未投入。解釈テキストはレイアウト確認用のダミーです。"
+        />
+      </div>
+    </main>
   );
 }

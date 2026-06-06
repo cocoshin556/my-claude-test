@@ -1,18 +1,21 @@
 import Link from 'next/link';
+import { ReadingApp } from '@/components/ReadingApp';
 
 export default function HomePage() {
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">統合占術アプリ</h1>
-      <p className="mt-2 text-sm text-gray-600">
-        流生命・数秘術・西洋占星術を統合する個人練習用の鑑定アプリ。
-      </p>
-      <Link
-        href="/mock"
-        className="mt-4 inline-block rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-      >
-        統合表示のモックを見る →
-      </Link>
+    <main className="mx-auto max-w-5xl px-4 py-10">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">統合占術</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            生年月日などから、流生命・数秘術・西洋占星術を統合して鑑定します。
+          </p>
+        </div>
+        <Link href="/mock" className="shrink-0 text-xs text-slate-400 hover:text-slate-600">
+          表示モック →
+        </Link>
+      </div>
+      <ReadingApp />
     </main>
   );
 }

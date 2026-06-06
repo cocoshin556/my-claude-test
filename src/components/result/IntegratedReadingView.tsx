@@ -112,9 +112,7 @@ function AstrologyFacts({ astrology }: { astrology: AstrologyResult }) {
             MC {SIGN_JA[astrology.angles.midheaven.sign]} {deg(astrology.angles.midheaven.signDegree)}
           </span>
         </div>
-      ) : (
-        <p className="text-xs text-slate-400">時刻不明のため ASC/MC・ハウスは省略</p>
-      )}
+      ) : null}
       <table className="w-full text-left text-xs">
         <thead className="text-slate-400">
           <tr>
@@ -150,6 +148,15 @@ function AstrologyFacts({ astrology }: { astrology: AstrologyResult }) {
           ))}
         </div>
       ) : null}
+      {astrology.notes.length > 0 ? (
+        <ul className="space-y-0.5 pt-1">
+          {astrology.notes.map((n, i) => (
+            <li key={i} className="text-[11px] leading-snug text-slate-400">
+              ※ {n}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
@@ -157,13 +164,16 @@ function AstrologyFacts({ astrology }: { astrology: AstrologyResult }) {
 /**
  * 統合表示画面。3体系の結果をカードで並べ、各カードで「事実」と「解釈」を分離する。
  * 出典トグルで、解釈テキストがどの JSON 由来かを表示できる。
+ * notice を渡すと上部に注記バー（モック用など）を表示する。
  */
 export function IntegratedReadingView({
   reading,
   astrologyInterpretation,
+  notice,
 }: {
   reading: IntegratedReading;
   astrologyInterpretation: Interpretation;
+  notice?: string;
 }) {
   const [showSources, setShowSources] = useState(false);
   const { input, numerology, astrology, ryuseimei } = reading;
@@ -175,106 +185,108 @@ export function IntegratedReadingView({
   const sunSign = astrology.planets[0] ? SIGN_JA[astrology.planets[0].sign] : '—';
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="bg-amber-100 px-4 py-2 text-center text-xs font-medium text-amber-800">
-        モック表示（サンプルデータ）— 実データ未投入。解釈テキストはレイアウト確認用のダミーです。
+    <section className="space-y-6">
+      {notice ? (
+        <div className="rounded-lg bg-amber-100 px-4 py-2 text-center text-xs font-medium text-amber-800">
+          {notice}
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">統合鑑定結果</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            {input.date.year}年{input.date.month}月{input.date.day}日 / {timeLabel} /{' '}
+            {input.place.name ?? '出生地不明'} / {genderLabel} /{' '}
+            {input.bloodType ? `${input.bloodType}型` : '血液型不明'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowSources((v) => !v)}
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 transition ${
+            showSources
+              ? 'bg-slate-800 text-white ring-slate-800'
+              : 'bg-white text-slate-600 ring-slate-300 hover:bg-slate-100'
+          }`}
+        >
+          出典表示: {showSources ? 'ON' : 'OFF'}
+        </button>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">統合鑑定結果</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {input.date.year}年{input.date.month}月{input.date.day}日 / {timeLabel} /{' '}
-              {input.place.name ?? '出生地不明'} / {genderLabel} /{' '}
-              {input.bloodType ? `${input.bloodType}型` : '血液型不明'}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowSources((v) => !v)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ring-1 transition ${
-              showSources
-                ? 'bg-slate-800 text-white ring-slate-800'
-                : 'bg-white text-slate-600 ring-slate-300 hover:bg-slate-100'
-            }`}
-          >
-            出典表示: {showSources ? 'ON' : 'OFF'}
-          </button>
-        </div>
-
-        <div className="mt-6 grid gap-5 lg:grid-cols-3">
-          <SystemCard
-            accent="violet"
-            system="流生命"
-            headline={ryuseimei.star.name}
-            headlineSub={`タイプ ${ryuseimei.star.digit}`}
-            facts={<RyuseimeiFacts star={ryuseimei.star} />}
-            interpretation={
-              <div className="space-y-3">
-                <InterpretationView
-                  interpretation={ryuseimei.star.interpretation}
-                  showSource={showSources}
-                />
-                <div className="border-t border-dashed border-slate-200 pt-2">
-                  <p className="mb-1 text-xs text-slate-400">
-                    当年サイクル（{ryuseimei.cycle.year}）
-                  </p>
-                  <InterpretationView
-                    interpretation={ryuseimei.cycle.interpretation}
-                    showSource={showSources}
-                  />
-                </div>
-              </div>
-            }
-          />
-
-          <SystemCard
-            accent="indigo"
-            system="西洋占星術"
-            headline={`太陽 ${sunSign}`}
-            headlineSub={`${astrology.config.houseSystem}`}
-            facts={<AstrologyFacts astrology={astrology} />}
-            interpretation={
+      <div className="grid gap-5 lg:grid-cols-3">
+        <SystemCard
+          accent="violet"
+          system="流生命"
+          headline={ryuseimei.star.name}
+          headlineSub={`タイプ ${ryuseimei.star.digit}`}
+          facts={<RyuseimeiFacts star={ryuseimei.star} />}
+          interpretation={
+            <div className="space-y-3">
               <InterpretationView
-                interpretation={astrologyInterpretation}
+                interpretation={ryuseimei.star.interpretation}
                 showSource={showSources}
               />
-            }
-          />
-
-          <SystemCard
-            accent="amber"
-            system="数秘術"
-            headline={`ライフパス ${numerology.lifePath.value}`}
-            headlineSub={numerology.lifePath.isMasterNumber ? 'マスターナンバー' : undefined}
-            facts={
-              <div className="space-y-2">
-                <NumberRow label="ライフパス" n={numerology.lifePath} />
-                <NumberRow label="ディスティニー（誕生数）" n={numerology.destiny} />
-              </div>
-            }
-            interpretation={
-              <div className="space-y-3">
+              <div className="border-t border-dashed border-slate-200 pt-2">
+                <p className="mb-1 text-xs text-slate-400">
+                  当年サイクル（{ryuseimei.cycle.year}）
+                </p>
                 <InterpretationView
-                  interpretation={numerology.lifePath.interpretation}
+                  interpretation={ryuseimei.cycle.interpretation}
                   showSource={showSources}
                 />
-                <div className="border-t border-dashed border-slate-200 pt-2">
-                  <InterpretationView
-                    interpretation={numerology.destiny.interpretation}
-                    showSource={showSources}
-                  />
-                </div>
               </div>
-            }
-          />
-        </div>
+            </div>
+          }
+        />
 
-        <p className="mt-6 text-center text-xs text-slate-400">
-          各カードは「計算で出た事実」と「解釈テキスト」を分離表示。解釈は data/ 由来のみ（コードは占文を生成しない）。
-        </p>
+        <SystemCard
+          accent="indigo"
+          system="西洋占星術"
+          headline={`太陽 ${sunSign}`}
+          headlineSub={
+            astrology.angles ? `ASC ${SIGN_JA[astrology.angles.ascendant.sign]}` : '時刻不明'
+          }
+          facts={<AstrologyFacts astrology={astrology} />}
+          interpretation={
+            <InterpretationView
+              interpretation={astrologyInterpretation}
+              showSource={showSources}
+            />
+          }
+        />
+
+        <SystemCard
+          accent="amber"
+          system="数秘術"
+          headline={`ライフパス ${numerology.lifePath.value}`}
+          headlineSub={numerology.lifePath.isMasterNumber ? 'マスターナンバー' : undefined}
+          facts={
+            <div className="space-y-2">
+              <NumberRow label="ライフパス" n={numerology.lifePath} />
+              <NumberRow label="ディスティニー（誕生数）" n={numerology.destiny} />
+            </div>
+          }
+          interpretation={
+            <div className="space-y-3">
+              <InterpretationView
+                interpretation={numerology.lifePath.interpretation}
+                showSource={showSources}
+              />
+              <div className="border-t border-dashed border-slate-200 pt-2">
+                <InterpretationView
+                  interpretation={numerology.destiny.interpretation}
+                  showSource={showSources}
+                />
+              </div>
+            </div>
+          }
+        />
       </div>
-    </main>
+
+      <p className="text-center text-xs text-slate-400">
+        各カードは「計算で出た事実」と「解釈テキスト」を分離表示。解釈は data/ 由来のみ（コードは占文を生成しない）。
+      </p>
+    </section>
   );
 }
