@@ -6,6 +6,13 @@
 /** 血液型（任意入力）。 */
 export type BloodType = 'A' | 'B' | 'O' | 'AB';
 
+/**
+ * 性別。流生命で使用する。
+ * 注: 原典「流生命の出し方」では星(タイプ)判定に生年月日のみを用い、性別は使わない。
+ * 性別はサイクル等、別ルールで参照する想定（原典の該当部提供後に確定）。
+ */
+export type Gender = 'male' | 'female';
+
 /** 生年月日（必須）。西暦。 */
 export interface BirthDate {
   /** 西暦の年。例: 1990 */
@@ -60,6 +67,8 @@ export interface BirthInput {
   place: BirthPlace;
   /** 血液型（任意）。 */
   bloodType: BloodType | null;
+  /** 性別。流生命で使用。 */
+  gender: Gender;
   /** タイムゾーン。 */
   timezone: TimeZoneInput;
 }
